@@ -45,8 +45,6 @@ int main()
 
     sell_sandwiches(&cola, &stack);
 
-    printf("Estudiantes");
-
     return 0;
 }
 
