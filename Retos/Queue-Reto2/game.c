@@ -18,6 +18,7 @@ int main()
     scanf("%d", &v);
 
     theGame(&queue, v, count);
+    
 
     printf("El ganador es: %d", queue.datos[queue.inicio]);
 
