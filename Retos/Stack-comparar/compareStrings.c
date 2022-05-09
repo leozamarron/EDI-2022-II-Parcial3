@@ -56,12 +56,9 @@ void backSpace(Stack *s, int j)
             {
                 s->data[j].string[k] = s->data[j].string[k+1];
             }
-        }
-        else if (s->data[j].string[i] == *"#")
+        } else if (s->data[j].string[i] == *"#")
         {
-            s->data[j].string[i-1] = s->data[j].string[i+1];
-
-            for (int k = i; k < limit-1; k++)
+            for (int k = i-1; k < limit-1; k++)
             {
                 s->data[j].string[k] = s->data[j].string[k+2];
             }
