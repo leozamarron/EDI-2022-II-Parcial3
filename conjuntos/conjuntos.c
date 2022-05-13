@@ -25,17 +25,138 @@ typedef struct set
 void init_set(Set *s);
 int add(Set *s, int value);
 int find(Set set, int value);
+int removeSet(Set *s, int value);
+int exist(Set set, int value);
+int removeFirst(Set *s, int *v);
+int removeLast(Set *s, int *v);
+void junction(Set setA, Set setB, Set *sC);
+void intersect(Set setA, Set setB, Set *sC);
+void complement(Set setA, Set setB, Set *sC);
+void difference(Set setA, Set setB, Set *sC);
 
 void main()
 {
-    Set set;
+    Set setA;
+    Set setB;
+    Set setC;
+    int value;
 
-    init_set(&set);
-    add(&set, 10);
-    add(&set, 1);
-    add(&set, 14);
-    add(&set, 5);
-    add(&set, 14);
+    init_set(&setA);
+    add(&setA, 23);
+    add(&setA, 11);
+    add(&setA, 16);
+    add(&setA, 5);
+    add(&setA, 7);
+
+    init_set(&setB);
+    add(&setB, 10);
+    add(&setB, 11);
+    add(&setB, 21);
+    add(&setB, 5);
+
+    printf("La interseccion del conjunto A y B es: \n");
+    init_set(&setC);
+    intersect(setA, setB, &setC);
+    printSet(setC);
+
+    printf("La union del conjunto A y B es: \n");
+    init_set(&setC);
+    junction(setA, setB, &setC);
+    printSet(setC);
+
+    printf("El complemento del conjunto A es: \n");
+    init_set(&setC);
+    complement(setA, setB, &setC);
+    printSet(setC);
+
+    printf("El complemento del conjunto B es: \n");
+    init_set(&setC);
+    complement(setB, setA, &setC);
+    printSet(setC);
+
+    printf("La diferencia del conjunto A - B es: \n");
+    init_set(&setC);
+    difference(setA, setB, &setC);
+    printSet(setC);
+
+    printf("La diferencia del conjunto B - A es: \n");
+    init_set(&setC);
+    difference(setB, setA, &setC);
+    printSet(setC);
+
+//    removeSet(&setA, 1);
+
+//    exist(setA, 5); //0
+//    exist(setA, 10); //1
+    
+//    removeFirst(&setA, &value);
+//    removeLast(&setA, &value);
+
+}
+
+void printSet(Set set)
+{
+    printf("[");
+    for (int i = 0; i < set.size; i++)
+    {
+        printf(" %d", set.data[i]);
+    }
+    printf(" ]\n");
+}
+
+void difference(Set setA, Set setB, Set *sC)
+{
+    int e;
+    for (int i = 0; i < setA.size; i++)
+    {
+        e = exist(setB, setA.data[i]);
+        if (e==0)
+        {
+            add(sC, setA.data[i]);
+        }
+    }
+}
+
+void complement(Set setA, Set setB, Set *sC)
+{
+    int e;
+    for (int i = 0; i < setB.size; i++)
+    {
+        e = exist(setB, setA.data[i]);
+        if (e==0)
+        {
+            add(sC, setB.data[i]);
+        }
+    }
+}
+
+void junction(Set setA, Set setB, Set *sC)
+{
+    intersect(setA, setB, sC);
+    complement(setA, setB, sC);
+    difference(setA, setB, sC);
+}
+
+void intersect(Set setA, Set setB, Set *sC)
+{
+    int e;
+    for (int i = 0; i < setA.size; i++)
+    {
+        e = exist(setB, setA.data[i]);
+        if (e==1)
+        {
+            add(sC, setA.data[i]);
+        }
+    }
+}
+
+int exist(Set set, int value)
+{
+    int i = find(set, value);
+
+    if (i == -1)
+        return 0; // No existe
+    return 1;
 }
 
 int add(Set *s, int value)
@@ -47,9 +168,9 @@ int add(Set *s, int value)
     if (s->size < SET_CAPACITY)
     {
         //find es una funcion que busca el valor dentro del conjunto (Busqueda binaria)
-        // Regresa 0 si no lo encontro y un 1 si lo encontro
+        // Regresa -1 si no lo encontro y la posicion si lo encontro
         exists = find(*s, value);
-        if (!exists) // exists == 0
+        if (exists == -1) // si no existe
         {
             // insertar el valor en el arreglo de forma ordenada
             // Vamos a empezar a revisar desde la posicion size-1 mientras el valor que este en la posicion
@@ -84,7 +205,7 @@ int find(Set set, int value)
         centerValue = set.data[center];
 
         if(value == centerValue)
-            return 1;
+            return center;
             
         if (centerValue > value)
             end = center-1;
@@ -93,10 +214,51 @@ int find(Set set, int value)
     }
     
 
-    return 0;
+    return -1;
 }
 
 void init_set(Set *s)
 {
     s->size = 0; 
+}
+
+int removeSet(Set *s, int value)
+{
+    //find regresa -1 y la posicion si es que se encuentra
+    int i = find(*s, value);
+
+    if (i != -1)
+    {
+        s->size--;
+        for (; i < s->size ; i++)
+        {
+            s->data[i] = s->data[i+1];
+        }
+        return 1;
+    }
+    return 0;
+}
+
+int removeFirst(Set *s, int *v)
+{
+    if (s->size != 0)
+    {
+        s->size--;
+        for (int i = 0; i < s->size ; i++)
+        {
+            s->data[i] = s->data[i+1];
+        }
+        return 1;
+    }
+    return 0;
+}
+
+int removeLast(Set *s, int *v)
+{
+    if (s->size != 0)
+    {
+        s->size--;
+        return 1;
+    }
+    return 0;
 }
