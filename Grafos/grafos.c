@@ -24,12 +24,14 @@ Dos tipos de grafos:
 
 #include <stdio.h>
 #include <string.h>
+#include "queue.h"
 
 #define GRAPH_CAPACITY 32
 
 typedef struct graph{
     int edges[GRAPH_CAPACITY][GRAPH_CAPACITY];
     char vertices[GRAPH_CAPACITY][20];
+    int flag[GRAPH_CAPACITY];
     int size;
 }Graph;
 
@@ -41,6 +43,7 @@ void printGraph(Graph graph);
 int deleteVertice(Graph *g, char vertice[20]);  //  Recorre el espacio del vertice que se elimino y mover los demas tanto en la lista de vertices como en las aristas
 int deleteEdge(Graph *g, char verticeSource[20], char verticeDestiny[20]);
 int areRelated(Graph graph, char verticeSource[20], char verticeDestiny[20]);
+void bfs(Graph *g, char vertice[50]);
 
 int main()
 {
@@ -83,6 +86,11 @@ int main()
 void initGraph(Graph *g)
 {
     g->size = 0;
+
+    for (int i = 0; i < GRAPH_CAPACITY; i++)
+    {
+        g->flag[i] = 0;
+    }
 }
 
 int addVertice(Graph *g, char vertice[20])
@@ -213,4 +221,34 @@ int areRelated(Graph graph, char verticeSource[20], char verticeDestiny[20])
         if (graph.edges[posSource][posDestiny] == 1 && graph.edges[posDestiny][posSource] == 1)
             return 1;
     return 0;
+}
+
+// Recorrido en amplitud BFS - Breath Fisrt Search
+void bfs(Graph *g, char vertice[50])
+{
+    Cola colaVertice;
+    int posVertice = findVertice(*g, vertice);
+    char verticeActual[50];
+
+    inicializaCola(&colaVertice);
+
+    g->flag[posVertice] = 1; //  Marcando el vertice como visitado
+    insertar(&colaVertice, vertice);
+
+    while (!estaVacia(colaVertice))
+    {
+        eliminar(&colaVertice, verticeActual);
+        posVertice = findVertice(*g, verticeActual);
+        printf("%s ", verticeActual);
+
+        //  Meter las relaciones de ese vertice
+        for (int i = 0; i < g->size; i++)
+        {
+            if (posVertice != i && g->edges[posVertice][i] == 1 && g->flag[i] == 0)
+            {
+                g->flag[i] = 1;
+                insertar(&colaVertice, g->vertices[i]);
+            }
+        }
+    }
 }
