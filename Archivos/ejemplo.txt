@@ -1,0 +1,11 @@
+Leonel 100
+jose 29
+luis 23
+juan 200
+vere 10
+aldo 3
+rich 65
+zoe 34
+ivan 34
+mariana 20
+noe 23
