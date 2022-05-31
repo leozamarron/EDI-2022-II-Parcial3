@@ -1,30 +1,14 @@
-/*
-Grafos
-Estructura de datos compleja
-- Vertices - Elemntos que queremos relacionar
-- Aristas - Indican cuando un elemento está relacionado con varios elemntos
-
-Dos tipos de grafos:
-
-- Dirigidos - Sus aristas tienen direcciones
-- No Dirigido - Sus aristas son bidireccionales
-
-    OPERACIONES
-    - Inicializar
-    - Insertar vertices
-    - Insertar aristas (edges) / relaciones
-    - Eliminar vertices
-    - Eliminar relaciones
-    - Si existe una relacion entre dos vertices
-    - Imprimir formato de tabla
-    - Dos tipos de recorrido:
-        - Recorrido en pronfundidad
-        - Recorrido en amplitud
-*/
-
 #include <stdio.h>
 #include <string.h>
-#include "queue.h"
+
+#define MAX 100 //capacidad de la cola
+
+typedef struct colas
+{
+    char datos[MAX + 1][50];
+    int inicio;
+    int fin;
+}Cola;
 
 #define GRAPH_CAPACITY 32
 
@@ -35,53 +19,65 @@ typedef struct graph{
     int size;
 }Graph;
 
-void initGraph(Graph *g);
-int addVertice(Graph *g, char vertice[20]);
-int findVertice(Graph graph, char vertice[20]);
-int addEdge(Graph *g, char verticeSource[20], char verticeDestiny[20]);
-void printGraph(Graph graph);
-int deleteVertice(Graph *g, char vertice[20]);  //  Recorre el espacio del vertice que se elimino y mover los demas tanto en la lista de vertices como en las aristas
-int deleteEdge(Graph *g, char verticeSource[20], char verticeDestiny[20]);
-int areRelated(Graph graph, char verticeSource[20], char verticeDestiny[20]);
-void bfs(Graph *g, char vertice[50]);
+//-------------------------------------------------------//
+//-------------------------Pilas------------------------//
+//-------------------------------------------------------//
 
-int main()
+int eliminar(Cola *c, char valor[50])
 {
-    Graph graph;
-    int relacion;
-
-    initGraph(&graph);
-
-    addVertice(&graph, "San Luis Potosi");
-    addVertice(&graph, "Querétaro");
-    addVertice(&graph, "Nuevo Leon");
-    addVertice(&graph, "Jalisco");
-    addVertice(&graph, "Tamaulipas");
-
-    for (int i = 0; i < graph.size; i++)
+    int r = 0;
+    if (!estaVacia(*c))
     {
-        for (int j = i; j < graph.size; j++)
-        {
-            printf("%s tinen relacion con %s? (1 - si, 0 - no) ", graph.vertices[i], graph.vertices[j]);
-            scanf("%d", &relacion);
+        strcpy(valor, c->datos[c->inicio]);
+        c->inicio = (c->inicio + 1) % (MAX+1);
+        r = 1;
+    }
+    return r;
+}
 
-            if (relacion == 1)
-                addEdge(&graph, graph.vertices[i], graph.vertices[j]);
-        }
-        
+int insertar(Cola *c, char valor[50])
+{
+    int r = 0;
+
+    if (estaLlena(*c) == 0) //Hay espacio para insertar, la cola no esta llena
+    {
+        //  Poner el valor dentro del arreglo dentro dentro de la posicion que dice fin
+        strcpy(c->datos[c->fin], valor);
+        //  Mover fin a la siguiente casilla libre
+        c->fin = (c->fin + 1) % (MAX+1);
+        r = 1;
     }
 
-    deleteVertice(&graph, "Jalisco");
+    return r;
+}
 
-    printGraph(graph);
-
-    if (areRelated(graph, "San Luis Potosi", "Tamaulipas") == 1)
-        printf("Si estan relacionados san luis y tamaulipas");
-    else
-        printf("No estan relacionados san luis y tamaulipas");
-
+int estaLlena(Cola cola)
+{
+    if (cola.inicio == cola.fin + 1 || (cola.inicio == 0 && cola.fin == MAX))
+    {
+        return 1;
+    }
     return 0;
 }
+
+int estaVacia(Cola cola)
+{
+    if(cola.inicio == cola.fin)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+void inicializaCola(Cola *c)
+{
+    c->inicio = 0;
+    c->fin = 0;
+}
+
+//-------------------------------------------------------//
+//-------------------------Grafos------------------------//
+//-------------------------------------------------------//
 
 void initGraph(Graph *g)
 {
@@ -141,6 +137,7 @@ int addEdge(Graph *g, char verticeSource[20], char verticeDestiny[20])
     if (posSource != -1 && posDestiny != -1) //Encontró los dos vertices
     {
         g->edges[posSource][posDestiny] = 1;
+        g->edges[posDestiny][posSource] = 1;
 
         return 1;
     }
@@ -245,6 +242,7 @@ void bfs(Graph *g, char vertice[50])
         {
             if (posVertice != i && g->edges[posVertice][i] == 1 && g->flag[i] == 0)
             {
+
                 g->flag[i] = 1;
                 insertar(&colaVertice, g->vertices[i]);
             }
